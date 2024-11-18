@@ -1,0 +1,67 @@
+name: UpdateDefinitionVersion
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Safely-deploy-assignment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        # Log into Azure
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true 
+      
+      - name: Deploy assignment to Ring 0 regions
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: ${{ vars.AZURE_RG }}
+          "definitionVersion": "9.3.*",
+          parameters: SDPRegions=${{ vars.RING0REGIONS}}
+          template: ContainerImage.json
+
+      run: sleep 180s
+    
+      - name: Deploy assignment to Ring 1 regions
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          "definitionVersion": "9.3.*",
+          resourceGroupName: ${{ vars.AZURE_RG }}
+          parameters: SDPRegions=${{ vars.RING1REGIONS}} 
+          template: ContainerImage.json
+  
+        run: sleep 180s
+
+      - name: Deploy assignment to Ring 2 regions
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          "definitionVersion": "9.3.*",
+          resourceGroupName: ${{ vars.AZURE_RG }}
+          parameters: SDPRegions=${{ vars.RING2REGIONS}} 
+          template: ContainerImage.json
+        
+        run: sleep 180s
+      
+      - name: Deploy assignment to ROW regions
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          "definitionVersion": "9.3.*",
+          resourceGroupName: ${{ vars.AZURE_RG }}
+          parameters: SDPRegions=${{ vars.ROWREGIONS}} 
+          template: ContainerImage.json
