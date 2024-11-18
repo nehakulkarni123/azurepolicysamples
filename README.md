@@ -1,0 +1,1 @@
+Welcome! A policy as code framework is a critical component of safely rolling out Azure Policy at-scale. Feel free to grab the workflow samples in these repository as a starting point for your journey.
