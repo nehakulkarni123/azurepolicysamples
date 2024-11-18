@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "SDPRegions" :{
+      "type": "array"
+    }, 
+    "effect" :{
+     "type" : "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/policyAssignments",
+      "name": "AKS_DisableLocalAccounts",
+      "apiVersion": "2022-06-01",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "/subscriptions/0ba674a6-9fde-43b4-8370-a7e16fdf0641/resourcegroups/nehakulkarni-rg-test/providers/Microsoft.ManagedIdentity/userAssignedIdentities/NehaUAMI_Test": {}
+        }
+      },
+      "location": "eastus",
+      "properties": {
+        "scope": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroup().name)]",
+        "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/993c2fcd-2b29-49d2-9eb0-df2c3a730c32",
+        "enforcementMode": "Default",
+           "overrides": [
+             {
+               "kind": "policyEffect",
+               "value": "Deny",
+               "selectors": [
+                 {
+                   "kind": "resourceLocation",
+                   "in": "[parameters('SDPRegions')]"
+                 }
+               ]
+             }
+           ], 
+        "parameters":{
+          "effect":{
+            "value" : "[parameters('effect')]"
+          }
+        }
+      }
+    }
+  ]
+}
