@@ -28,7 +28,7 @@
            "overrides": [
              {
                "kind": "policyEffect",
-               "value": "Deny",
+               "value": "Audit",
                "selectors": [
                  {
                    "kind": "resourceLocation",
